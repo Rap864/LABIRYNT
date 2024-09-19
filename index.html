@@ -3,181 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasino Wakacyjne</title>
+    <title>Kasyno Rapera</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #1a1a1a;
+            color: #fff;
             text-align: center;
         }
-        .menu {
+
+        .container {
+            margin: 50px auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #ffcc00;
+        }
+
+        .roulette-board {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .number {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #444;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .number:hover {
+            background-color: #ffcc00;
+        }
+
+        .message {
+            margin: 20px;
+            font-size: 24px;
+        }
+
+        .bet-buttons {
             margin: 20px;
         }
-        .game {
-            display: none;
+
+        .bet-buttons button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        #initial-money {
-            margin: 20px;
-        }
-        .cards {
-            margin: 20px;
+
+        .bet-buttons button:hover {
+            background-color: #ff9900;
         }
     </style>
 </head>
 <body>
 
-    <h1>Kasino Wakacyjne</h1>
-    <audio controls autoplay loop>
-        <source src="muzyka_wakacyjna.mp3" type="audio/mpeg">
-        Twój przeglądarka nie obsługuje odtwarzania audio.
-    </audio>
+    <div class="container">
+        <h1>Kasyno Rapera</h1>
+        <p>Witaj w grze! Postaw swój zakład i zakręć ruletką!</p>
 
-    <div id="initial-money">
-        <h2>Twoje pieniądze: <span id="money">1000000</span> USD</h2>
-    </div>
+        <div class="roulette-board">
+            <div class="number" id="0">0</div>
+            <div class="number" id="1">1</div>
+            <div class="number" id="2">2</div>
+            <div class="number" id="3">3</div>
+            <div class="number" id="4">4</div>
+            <div class="number" id="5">5</div>
+            <div class="number" id="6">6</div>
+            <div class="number" id="7">7</div>
+            <div class="number" id="8">8</div>
+            <div class="number" id="9">9</div>
+        </div>
 
-    <div class="menu">
-        <button onclick="showGame('slot')">Jednoręki bandyta</button>
-        <button onclick="showGame('poker')">Poker</button>
-        <button onclick="showGame('oczko')">Oczko</button>
-        <button onclick="showGame('wojna')">Wojna karciana</button>
-        <button onclick="showGame('ruletka')">Ruletka</button>
-    </div>
+        <div class="message" id="message">Wybierz liczbę!</div>
 
-    <div id="slot" class="game">
-        <h2>Jednoręki bandyta</h2>
-        <button onclick="playSlot()">Graj</button>
-    </div>
-
-    <div id="poker" class="game">
-        <h2>Poker</h2>
-        <input type="number" id="poker-bet" placeholder="Kwota zakładu">
-        <button onclick="playPoker()">Graj</button>
-    </div>
-
-    <div id="oczko" class="game">
-        <h2>Oczko</h2>
-        <input type="number" id="oczko-bet" placeholder="Kwota zakładu">
-        <button onclick="startOczko()">Graj</button>
-        <div class="cards" id="oczko-cards"></div>
-        <div class="cards" id="dealer-cards"></div>
-    </div>
-
-    <div id="wojna" class="game">
-        <h2>Wojna karciana</h2>
-        <input type="number" id="wojna-bet" placeholder="Kwota zakładu">
-        <button onclick="playWojna()">Graj</button>
-    </div>
-
-    <div id="ruletka" class="game">
-        <h2>Ruletka</h2>
-        <input type="number" id="ruletka-bet" placeholder="Kwota zakładu">
-        <button onclick="playRuletka()">Graj</button>
+        <div class="bet-buttons">
+            <button onclick="placeBet()">Postaw zakład</button>
+            <button onclick="spinRoulette()">Zakręć ruletką</button>
+        </div>
     </div>
 
     <script>
-        let money = 1000000;
+        let playerBet = -1;
+        const aiNumber = Math.floor(Math.random() * 10); // AI losuje liczbę od 0 do 9
 
-        function showGame(game) {
-            const games = document.querySelectorAll('.game');
-            games.forEach(g => g.style.display = 'none');
-            document.getElementById(game).style.display = 'block';
-        }
+        document.querySelectorAll('.number').forEach(number => {
+            number.addEventListener('click', function() {
+                playerBet = parseInt(this.id);
+                document.getElementById('message').textContent = 'Postawiłeś zakład na liczbę ' + playerBet;
+            });
+        });
 
-        function updateMoney() {
-            document.getElementById('money').innerText = money;
-        }
-
-        function startOczko() {
-            const bet = parseInt(document.getElementById('oczko-bet').value);
-            if (bet > money) {
-                alert("Nie masz wystarczającej kwoty!");
-                return;
-            }
-            money -= bet;
-
-            const playerCards = [drawCard(), drawCard()];
-            const dealerCards = [drawCard(), drawCard()];
-
-            const playerScore = calculateScore(playerCards);
-            const dealerScore = calculateScore(dealerCards);
-
-            displayCards(playerCards, dealerCards);
-
-            let result;
-            if (playerScore > 21) {
-                result = 'Przegrałeś! Suma kart: ' + playerScore;
-            } else if (dealerScore > 21 || playerScore > dealerScore) {
-                result = 'Wygrałeś! Suma kart: ' + playerScore;
-                money += bet * 2;
+        function placeBet() {
+            if (playerBet === -1) {
+                document.getElementById('message').textContent = 'Najpierw wybierz liczbę!';
             } else {
-                result = 'Przegrałeś! Suma kart: ' + playerScore;
+                document.getElementById('message').textContent = 'Zakład postawiony na liczbę ' + playerBet + '. Zakręć ruletką!';
             }
-
-            alert(result);
-            updateMoney();
         }
 
-        function drawCard() {
-            return Math.floor(Math.random() * 10) + 1; // Losowa karta od 1 do 10
-        }
-
-        function calculateScore(cards) {
-            return cards.reduce((a, b) => a + b, 0);
-        }
-
-        function displayCards(playerCards, dealerCards) {
-            document.getElementById('oczko-cards').innerText = 'Twoje karty: ' + playerCards.join(', ');
-            document.getElementById('dealer-cards').innerText = 'Karty krupiera: ' + dealerCards.join(', ');
-        }
-
-        function playSlot() {
-            const result = Math.random() < 0.5 ? 1000 : -1000;
-            money += result;
-            alert(`Wynik: ${result > 0 ? 'Wygrałeś' : 'Przegrałeś'} ${Math.abs(result)} USD`);
-            updateMoney();
-        }
-
-        function playPoker() {
-            const bet = parseInt(document.getElementById('poker-bet').value);
-            if (bet > money) {
-                alert("Nie masz wystarczającej kwoty!");
-                return;
+        function spinRoulette() {
+            if (playerBet === -1) {
+                document.getElementById('message').textContent = 'Musisz postawić zakład przed zakręceniem ruletką!';
+            } else {
+                document.getElementById('message').textContent = 'Ruletka się kręci...';
+                setTimeout(() => {
+                    if (playerBet === aiNumber) {
+                        document.getElementById('message').textContent = 'Gratulacje! Wygrałeś! Wylosowana liczba to ' + aiNumber;
+                    } else {
+                        document.getElementById('message').textContent = 'Przegrałeś. Wylosowana liczba to ' + aiNumber;
+                    }
+                }, 2000); // Symulacja kręcenia ruletki przez 2 sekundy
             }
-            money -= bet;
-            const result = Math.random() < 0.5 ? bet * 2 : 0;
-            money += result;
-            alert(`Wynik: ${result > 0 ? 'Wygrałeś' : 'Przegrałeś'} ${Math.abs(result)} USD`);
-            updateMoney();
-        }
-
-        function playWojna() {
-            const bet = parseInt(document.getElementById('wojna-bet').value);
-            if (bet > money) {
-                alert("Nie masz wystarczającej kwoty!");
-                return;
-            }
-            money -= bet;
-            const playerCard = Math.floor(Math.random() * 13) + 1;
-            const aiCard = Math.floor(Math.random() * 13) + 1;
-            const result = playerCard > aiCard ? bet : 0;
-            money += result;
-            alert(`Twoja karta: ${playerCard}, Karta AI: ${aiCard}. Wynik: ${result > 0 ? 'Wygrałeś' : 'Przegrałeś'} ${Math.abs(result)} USD`);
-            updateMoney();
-        }
-
-        function playRuletka() {
-            const bet = parseInt(document.getElementById('ruletka-bet').value);
-            if (bet > money) {
-                alert("Nie masz wystarczającej kwoty!");
-                return;
-            }
-            money -= bet;
-            const win = Math.random() < 0.5;
-            const result = win ? bet * 2 : 0;
-            money += result;
-            alert(`Wynik: ${win ? 'Wygrałeś' : 'Przegrałeś'} ${Math.abs(result)} USD`);
-            updateMoney();
         }
     </script>
 
